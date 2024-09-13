@@ -70,11 +70,17 @@ fn to_proptest_config(args: Option<Args>) -> TokenStream {
         let base_expr = base_expr.unwrap_or_else(|| {
             parse_quote!(<proptest::test_runner::Config as std::default::Default>::default())
         });
-        quote! {
-            #![proptest_config(proptest::test_runner::Config {
-                #(#inits,)*
-                .. #base_expr
-              })]
+        if inits.is_empty() {
+            quote! {
+                #![proptest_config(#base_expr)]
+            }
+        } else {
+            quote! {
+                #![proptest_config(proptest::test_runner::Config {
+                    #(#inits,)*
+                    .. #base_expr
+                })]
+            }
         }
     } else {
         quote! {}
